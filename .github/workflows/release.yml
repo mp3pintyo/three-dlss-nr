@@ -30,6 +30,8 @@ jobs:
 
   checks:
     needs: guard
+    permissions:
+      contents: write
     uses: ./.github/workflows/ci.yml
     secrets: inherit
 
