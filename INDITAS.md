@@ -1,5 +1,11 @@
 # three-dlss-nr – helyi futtatás Windows alatt
 
+A projekt saját forkja: <https://github.com/mp3pintyo/three-dlss-nr>.
+Minden push, PR és release kizárólag ide kerül. Az új fejlesztésekhez az
+ellenőrzések után GitHub Release készül magyar és angol változásnaplóval.
+A közös szabályokat a [CONTRIBUTING.md](CONTRIBUTING.md), a kiadások változásait
+a [CHANGELOG.md](CHANGELOG.md) tartalmazza.
+
 A GitHub-projekt és a rögzített OpenDLSS-NR alprojekt telepítve van a
 `D:\AI\three-dlss-nr` mappában. A demó a helyi RTX 3090-en, a böngésző WebGPU
 felületén fut. A fej, a sportautó, a kanapé, a róka és a pilótasisak textúráikkal

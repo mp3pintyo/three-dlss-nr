@@ -10,9 +10,9 @@
     "tsl",
     "webgpu"
   ],
-  "homepage": "https://github.com/bhouston/three-dlss-nr/tree/main/packages/three-dlss-nr",
+  "homepage": "https://github.com/mp3pintyo/three-dlss-nr/tree/main/packages/three-dlss-nr",
   "bugs": {
-    "url": "https://github.com/bhouston/three-dlss-nr/issues"
+    "url": "https://github.com/mp3pintyo/three-dlss-nr/issues"
   },
   "license": "MIT",
   "author": "Ben Houston (https://ben3d.ca)",
@@ -21,7 +21,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bhouston/three-dlss-nr.git",
+    "url": "git+https://github.com/mp3pintyo/three-dlss-nr.git",
     "directory": "packages/three-dlss-nr"
   },
   "files": [

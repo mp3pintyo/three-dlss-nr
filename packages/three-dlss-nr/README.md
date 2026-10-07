@@ -2,8 +2,8 @@
 
 [![npm version](https://img.shields.io/npm/v/three-dlss-nr.svg)](https://www.npmjs.com/package/three-dlss-nr)
 [![npm downloads](https://img.shields.io/npm/dm/three-dlss-nr.svg)](https://www.npmjs.com/package/three-dlss-nr)
-[![ci](https://github.com/bhouston/three-dlss-nr/actions/workflows/ci.yml/badge.svg)](https://github.com/bhouston/three-dlss-nr/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/bhouston/three-dlss-nr/blob/main/LICENSE)
+[![ci](https://github.com/mp3pintyo/three-dlss-nr/actions/workflows/ci.yml/badge.svg)](https://github.com/mp3pintyo/three-dlss-nr/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mp3pintyo/three-dlss-nr/blob/main/LICENSE)
 [![Live demo](https://img.shields.io/badge/demo-three--dlss--nr.ben3d.ca-blue)](https://three-dlss-nr.ben3d.ca)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/5J5Ur3F6Z2)
 
@@ -16,7 +16,7 @@ The DLSS 5 neural rendering network as three.js [TSL](https://threejs.org/docs/#
 running inside a `WebGPURenderer` and fed straight from your scene. Every intermediate tensor is byte-identical to the
 reference WebGPU port.
 
-![The demo in split view: the head scan rendered normally on the left and through the TSL network with synthetic weights on the right](https://raw.githubusercontent.com/bhouston/three-dlss-nr/main/docs/images/demo-tsl-synthetic-split.png)
+![The demo in split view: the head scan rendered normally on the left and through the TSL network with synthetic weights on the right](https://raw.githubusercontent.com/mp3pintyo/three-dlss-nr/main/docs/images/demo-tsl-synthetic-split.png)
 
 _The demo with NR off (left) and on (right), on **synthetic weights**, which produce meaningless output. With a real
 model directory the right half is the re-rendered head._
@@ -47,9 +47,9 @@ upstream's [`docs/weights.md`](https://github.com/maanHimself/OpenDLSS-NR/blob/9
 realistic range. Because the port is bit-exact against the reference on these arbitrary weights, it will match on any
 weights, real ones included. Synthetic weights let the pipeline run end to end, but the image they produce is
 meaningless. The
-[repository README](https://github.com/bhouston/three-dlss-nr#why-there-are-no-real-weights-and-what-the-synthetic-ones-are-for)
+[repository README](https://github.com/mp3pintyo/three-dlss-nr#why-there-are-no-real-weights-and-what-the-synthetic-ones-are-for)
 explains why and the paths to meaningful output (a license from NVIDIA, or
-[open weights trained for the same architecture](https://github.com/bhouston/three-dlss-nr/blob/main/docs/training-weights.md)).
+[open weights trained for the same architecture](https://github.com/mp3pintyo/three-dlss-nr/blob/main/docs/training-weights.md)).
 
 ## Quick start
 
@@ -171,7 +171,7 @@ fed from a three.js render target with no CPU readback, for comparing the whole 
 Not real-time today. On an RTX 3060 Ti in Chrome, the whole network takes a median 201 ms per frame at 512x512 and
 659 ms at 1280x720 on the TSL backend, against 123 ms and 412 ms for the reference WGSL backend on the same device.
 Closing that gap is future work. Full numbers and how to reproduce them are in the
-[repository README](https://github.com/bhouston/three-dlss-nr#performance).
+[repository README](https://github.com/mp3pintyo/three-dlss-nr#performance).
 
 ## Verification
 
@@ -179,8 +179,8 @@ Every kernel family and the whole network (451 dispatches: all 79 block boundari
 head) are byte-identical to the reference WebGPU port at 64x64 and 512x512 on synthetic weights, checked in real
 Chrome on an RTX 3060 Ti. The numerics are checked against the reference's numerics fixture, exhaustively over every
 half and every byte where the domain allows it. CI gates the whole network against golden digests. See the
-[repository README](https://github.com/bhouston/three-dlss-nr#verified-byte-for-byte) and the
-[internals notes](https://github.com/bhouston/three-dlss-nr/blob/main/packages/three-dlss-nr/src/README-internals.md).
+[repository README](https://github.com/mp3pintyo/three-dlss-nr#verified-byte-for-byte) and the
+[internals notes](https://github.com/mp3pintyo/three-dlss-nr/blob/main/packages/three-dlss-nr/src/README-internals.md).
 
 ## License
 

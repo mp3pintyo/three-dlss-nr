@@ -1,8 +1,10 @@
 # three-dlss-nr
 
-[![ci](https://github.com/bhouston/three-dlss-nr/actions/workflows/ci.yml/badge.svg)](https://github.com/bhouston/three-dlss-nr/actions/workflows/ci.yml)
-[![Unit coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbhouston%2Fthree-dlss-nr%2Fcoverage-badge%2Fcoverage.json)](https://github.com/bhouston/three-dlss-nr/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/bhouston/three-dlss-nr/blob/main/LICENSE)
+This is the Hungarian personal fork maintained at [mp3pintyo/three-dlss-nr](https://github.com/mp3pintyo/three-dlss-nr), based on [Ben Houston's original project](https://github.com/bhouston/three-dlss-nr). All development, pull requests and releases target this fork exclusively. New development ships as a GitHub Release with Hungarian and English notes in [CHANGELOG.md](CHANGELOG.md); see [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow. Windows users can start with [INDITAS.md](INDITAS.md).
+
+[![ci](https://github.com/mp3pintyo/three-dlss-nr/actions/workflows/ci.yml/badge.svg)](https://github.com/mp3pintyo/three-dlss-nr/actions/workflows/ci.yml)
+[![Unit coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmp3pintyo%2Fthree-dlss-nr%2Fcoverage-badge%2Fcoverage.json)](https://github.com/mp3pintyo/three-dlss-nr/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mp3pintyo/three-dlss-nr/blob/main/LICENSE)
 [![Live demo](https://img.shields.io/badge/demo-three--dlss--nr.ben3d.ca-blue)](https://three-dlss-nr.ben3d.ca)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/5J5Ur3F6Z2)
 
@@ -251,7 +253,7 @@ pnpm build && node scripts/bench-backends.mjs --sizes 512x512,1280x720
 ## Development
 
 ```sh
-git clone --recurse-submodules https://github.com/bhouston/three-dlss-nr.git
+git clone --recurse-submodules https://github.com/mp3pintyo/three-dlss-nr.git
 cd three-dlss-nr
 corepack enable
 pnpm install

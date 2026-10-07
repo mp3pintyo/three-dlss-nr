@@ -11,6 +11,8 @@ coverage
 .DS_Store
 .idea
 .vscode
+.local/
+packages/website/public/private-model/
 
 .pnpm-store/
 release-artifacts/

@@ -7,6 +7,7 @@ on:
 
 jobs:
   deploy:
+    if: github.repository == 'bhouston/three-dlss-nr'
     name: Deploy demo to Cloud Run
     uses: ./.github/workflows/deploy-service.yml
     with:
