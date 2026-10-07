@@ -56,11 +56,10 @@ import { E4_OPERAND_EXPONENT_BIAS, e4OperandTableAttribute, siluCodeTableAttribu
 const MAX_GROUPS = 65535;
 /** Rows (and columns) of the output tile one workgroup owns. */
 const TILE = 32;
-// Spread the 2-row / 4-column invocation mapping across shared-memory banks.
-// OpenDLSS-NR's padded.js uses the same idea for its own thread mapping; here
-// A has nine vec4s per row and B inserts one vec4 after each eight columns.
+// Padding adapts the bank-spreading idea from OpenDLSS-NR's matmul/padded.js
+// to our vec4 tiles and 2-row / 4-column invocation mapping.
 const A_STRIDE = 9;
-const B_STRIDE = TILE + TILE / 8;
+const B_STRIDE = 36;
 
 /**
  * The accumulator's part in a group's shared exponent: `max(exp(acc), -14)`, or -21 for a zero accumulator (the
@@ -282,6 +281,7 @@ export function createGemmFp8(spec: GemmSpec, buffers: GemmFp8Buffers): NRKernel
       const tileWords = [0, 1].map((j) => {
         const t = invocationLocalIndex.add(u(128 * j)).toVar();
         const q = t.bitAnd(u(7));
+        const tileRow = t.shiftRight(u(3));
         const aRow = rowGroup.mul(u(TILE)).add(t.shiftRight(u(3)));
         // native_chained_input_index(4q): logical k pairs (4q, 4q+1) and (4q+2, 4q+3) sit at physical bytes
         // 16 (q / 4) + 2 (q % 4) and that + 8 of the row's K tile.
@@ -294,11 +294,11 @@ export function createGemmFp8(spec: GemmSpec, buffers: GemmFp8Buffers): NRKernel
         let bByte = weightIndexInTile(q.mul(u(4)), bColumn);
         if (batch) bByte = bByte.add(batch.mul(u(k * n)));
         return {
-          aSlot: t.add(t.shiftRight(u(3))).toVar(),
+          aSlot: tileRow.mul(u(A_STRIDE)).add(q).toVar(),
           bSlot: q
             .mul(u(B_STRIDE))
-            .add(t.shiftRight(u(3)))
-            .add(t.shiftRight(u(6)))
+            .add(tileRow)
+            .add(tileRow.shiftRight(u(3)))
             .toVar(),
           aByte: aByte.toVar(),
           aValid: aRow.lessThan(u(rows)).toVar(),
@@ -311,8 +311,8 @@ export function createGemmFp8(spec: GemmSpec, buffers: GemmFp8Buffers): NRKernel
       const scales = accumulators.map(() => f(1).toVar());
       const sums = accumulators.map(() => f(0).toVar());
       const row0 = localId.y.mul(u(2 * A_STRIDE)).toVar();
-      const column0 = localId.x.mul(u(4)).toVar(); // B slot of (q = 0, column 4 lx)
-      const bSlots = [0, 1, 2, 3].map((c) => {
+      const column0 = localId.x.mul(u(4)).toVar();
+      const columns = [0, 1, 2, 3].map((c) => {
         const column = column0.add(u(c));
         return column.add(column.shiftRight(u(3))).toVar();
       });
@@ -360,7 +360,7 @@ export function createGemmFp8(spec: GemmSpec, buffers: GemmFp8Buffers): NRKernel
               // Pass 1: the shared exponent over the accumulator and every pair with both operands nonzero.
               quads((q) => {
                 const a = [0, 1].map((r) => aExponents.element(row0.add(u(r * A_STRIDE)).add(q)).toVar());
-                const b = bSlots.map((slot) => bExponents.element(q.mul(u(B_STRIDE)).add(slot)).toVar());
+                const b = columns.map((column) => bExponents.element(q.mul(u(B_STRIDE)).add(column)).toVar());
                 for (let r = 0; r < 2; ++r) {
                   for (let c = 0; c < 4; ++c)
                     exponents[r * 4 + c].assign(max(exponents[r * 4 + c], maxLanes(a[r].add(b[c]))));
@@ -373,7 +373,7 @@ export function createGemmFp8(spec: GemmSpec, buffers: GemmFp8Buffers): NRKernel
               // Pass 2: the aligned, truncated terms, summed exactly.
               quads((q) => {
                 const a = [0, 1].map((r) => aValues.element(row0.add(u(r * A_STRIDE)).add(q)).toVar());
-                const b = bSlots.map((slot) => bValues.element(q.mul(u(B_STRIDE)).add(slot)).toVar());
+                const b = columns.map((column) => bValues.element(q.mul(u(B_STRIDE)).add(column)).toVar());
                 for (let r = 0; r < 2; ++r) {
                   for (let c = 0; c < 4; ++c) {
                     const o = r * 4 + c;

@@ -246,8 +246,9 @@ describe('FP8 GEMM WGSL', () => {
   });
 
   it('matches the snapshot (codegen drift on a three bump shows here)', () => {
-    // Layout Fn helpers cache their generated dependencies. Warm every role so
-    // declaration order is the same when this test runs alone or after compute tests.
+    // Layout functions cache their dependencies on first generation. Populate the complete role set before
+    // hashing fresh kernels so helper declaration order is stable in isolation and after runtime parity tests.
+    // This generates WGSL only; it does not dispatch GPU work or change the shader's arithmetic.
     for (const role of GEMM_ROLES) kernelWGSL(gpu.renderer, ourGemm(gemmData(role)).kernel);
     const digest = (role: GemmRole) =>
       createHash('sha256')
