@@ -19,7 +19,7 @@ test('fork release notes reject missing versions and missing translations', () =
     assert.throws(() => bilingualNotes({}, context), /missing English/);
     writeFileSync(
       join(cwd, 'CHANGELOG.md'),
-      '## 1.1.0 — 2026-10-08\n### Magyar\n- Új funkció\n### English\n- New feature\n\n## 1.0.0 — 2026-10-07\n- Old',
+      '## 1.1.0 — 2026-10-08\r\n### Magyar\r\n- Új funkció\r\n### English\r\n- New feature\r\n\r\n## 1.0.0 — 2026-10-07\r\n- Old',
     );
     const notes = bilingualNotes({}, context);
     assert.match(notes, /Új funkció/);

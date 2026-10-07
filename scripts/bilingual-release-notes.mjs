@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 // A versioned entry is required: an old entry cannot silently become a new release.
 export function generateNotes(_config, { cwd, nextRelease }) {
-  const changelog = readFileSync(join(cwd, 'CHANGELOG.md'), 'utf8');
+  const changelog = readFileSync(join(cwd, 'CHANGELOG.md'), 'utf8').replaceAll('\r\n', '\n');
   const heading = `## ${nextRelease.version} —`;
   const entry = changelog.split('\n').findIndex((line) => line.startsWith(heading));
   if (entry < 0) throw new Error(`Add Hungarian and English CHANGELOG.md notes for ${nextRelease.version}.`);
