@@ -1,5 +1,23 @@
 # Changelog / Változásnapló
 
+## 1.0.1 — 2026-10-07
+
+### Magyar
+
+- Az eredeti projekt `caaf519` állapotából szelektíven átvett hibajavítások: a sikertelen, késői és egymást felülíró modellbetöltések erőforrásai biztonságosan felszabadulnak. A megosztott képek a használatuk végéig megmaradnak.
+- Backend-, súly- és felbontásváltás után az aktuális hálózat készenléte várható meg; az elavult betöltések nem írják felül az új állapotot.
+- A kamera a meglévő jelenetek teljes befoglaló gömbjéhez igazodik keskeny nézetben is, és visszaállításkor törli a korábbi kameramozgás maradékát. Sikertelen modellbetöltés újrapróbálható.
+- Pontosabb shader-vezérlés a félprecíziós gyors útvonalaknál, biztonságosabb referencia-program gyorsítótár és kibővített regressziós tesztek. A teljes hálózat GPU-tesztjei egymás után futnak.
+- A saját öt jelenet, magyar bemutató, Windows-indítók és kizárólagos fork-/release-beállítások megmaradtak. Új modellcsomag és függőség nem került be; új gyorsulási eredményt nem állítunk.
+
+### English
+
+- Selectively integrated fixes from upstream `caaf519`: failed, late and superseded model loads release owned resources safely. Shared images stay alive until their users release them.
+- Callers can await the current network after backend, weights or resolution changes; obsolete loads cannot overwrite newer state.
+- Camera fitting keeps existing scene bounds visible in narrow viewports and drains pending orbit damping on reset. Failed model selections can be retried.
+- Correct control flow for half-publication fast paths, safer reference program caching and expanded regression coverage. Full-network GPU test files run serially.
+- Preserved all five local scenes, the Hungarian presentation, Windows launchers and exclusive fork/release settings. No new model bundle or dependency was imported, and no additional speedup is claimed.
+
 ## 1.0.0 — 2026-10-07
 
 ### Magyar

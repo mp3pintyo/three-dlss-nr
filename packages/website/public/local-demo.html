@@ -105,7 +105,7 @@
           controller.setSettings({ style: 2 });
           const parameters = new URLSearchParams(location.search);
           await controller.setModel(parameters.get('scene') || 'car-concept');
-          if (controller.getState().modelError) throw new Error(controller.getState().modelError);
+          if (controller.getState().modelError) throw new Error(controller.getState().modelError.message);
           controller.setAutoRotate(false);
           const requestedBackend = parameters.get('backend');
           const backends = controller.getState().backends;

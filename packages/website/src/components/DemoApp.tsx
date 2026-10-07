@@ -362,7 +362,7 @@ function Controls({ state, controller }: { state: DemoState; controller: DemoCon
           <span>Model / scene</span>
           <select
             className="rounded border border-border bg-background px-1 py-0.5"
-            value={state.modelId}
+            value={state.requestedModelId ?? state.modelId}
             disabled={state.modelLoading}
             onChange={(e) => void controller.setModel(e.target.value)}
           >
@@ -374,9 +374,17 @@ function Controls({ state, controller }: { state: DemoState; controller: DemoCon
           </select>
         </label>
         {state.modelError ? (
-          <p role="alert" className="text-xs text-red-500">
-            {state.modelError}
-          </p>
+          <div role="alert" className="space-y-1 text-xs text-red-500">
+            <p>{state.modelError.message}</p>
+            <button
+              type="button"
+              disabled={state.modelLoading}
+              className="rounded border border-border px-2 py-1 text-foreground"
+              onClick={() => void controller.setModel(state.modelError!.modelId)}
+            >
+              Újrapróbálás
+            </button>
+          </div>
         ) : null}
         <label className="grid grid-cols-[110px_1fr] items-center gap-2 text-xs">
           <span>Resolution</span>
