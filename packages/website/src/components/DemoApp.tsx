@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 
 import type { DemoController, DemoState, FrameMode } from '@/lib/demo';
-import { HEAD_MODELS, headModel } from '@/lib/models';
+import { DEMO_MODELS, demoModel } from '@/lib/models';
 import { UPSTREAM_URL } from '@/lib/links';
+import { BackendHelp } from './BackendHelp';
 
 const RESOLUTION_OPTIONS = [
   { width: 640, height: 360 },
@@ -67,7 +68,7 @@ export function DemoApp() {
             <p className="absolute inset-0 grid place-items-center text-sm text-white/70">Loading…</p>
           ) : null}
         </div>
-        <HeadCredit modelId={state?.modelId ?? HEAD_MODELS[0].id} />
+        <ModelCredit modelId={state?.modelId ?? DEMO_MODELS[0].id} />
         {state ? <StatusBar state={state} /> : null}
       </div>
       <aside className="flex flex-col gap-4 text-sm">
@@ -113,7 +114,7 @@ function ViewportOverlay({ state, controller }: { state: DemoState; controller: 
       {building ? <BuildProgress state={state} /> : null}
       {state.modelLoading ? (
         <div className="pointer-events-none absolute right-2 bottom-2 text-xs">
-          <Badge>loading head…</Badge>
+          <Badge>loading model…</Badge>
         </div>
       ) : null}
     </>
@@ -174,7 +175,11 @@ function BuildProgress({ state }: { state: DemoState }) {
   return (
     <div className="absolute inset-x-0 bottom-0 bg-black/70 p-3 text-xs text-white backdrop-blur">
       <div className="flex justify-between gap-2">
-        <span className="truncate">Preparing the network: {state.network.message}</span>
+        <span className="truncate">
+          {match
+            ? `GPU-feladatok előkészítése: ${match[0]}`
+            : `A neurális hálózat előkészítése: ${state.network.message}`}
+        </span>
         <span className="shrink-0 tabular-nums">{seconds.toFixed(0)} s</span>
       </div>
       <div className="mt-2 h-1 overflow-hidden rounded bg-white/20">
@@ -185,25 +190,25 @@ function BuildProgress({ state }: { state: DemoState }) {
         )}
       </div>
       <p className="mt-1 text-white/60">
-        The first build compiles a few hundred GPU pipelines; on Windows (D3D12) this can take a minute. Later builds at
-        the same resolution reuse them.
+        Az első indítás és egy új felbontás GPU-programok fordítását igényli, ami akár néhány percig is tarthat.
+        Visszaváltáskor a már elkészült programokat használjuk. Az oldal frissítése új GPU-munkamenetet indít.
       </p>
     </div>
   );
 }
 
-function HeadCredit({ modelId }: { modelId: string }) {
-  const { attribution: a } = headModel(modelId);
+function ModelCredit({ modelId }: { modelId: string }) {
+  const { attribution: a } = demoModel(modelId);
   return (
     <p className="text-xs text-muted-foreground">
-      Head: <Link href={a.titleUrl}>&ldquo;{a.title}&rdquo;</Link> by <Link href={a.authorUrl}>{a.author}</Link>,
+      Model: <Link href={a.titleUrl}>&ldquo;{a.title}&rdquo;</Link> by <Link href={a.authorUrl}>{a.author}</Link>,
       licensed under <Link href={a.licenseUrl}>{a.license}</Link>
       {a.source ? (
         <>
           . <Link href={a.sourceUrl}>{a.source}</Link>
         </>
       ) : null}
-      .
+      .{a.modifications ? ` ${a.modifications}` : null}
     </p>
   );
 }
@@ -352,6 +357,61 @@ function Controls({ state, controller }: { state: DemoState; controller: DemoCon
         ) : null}
       </Section>
 
+      <Section title="Scene">
+        <label className="grid grid-cols-[110px_1fr] items-center gap-2 text-xs">
+          <span>Model / scene</span>
+          <select
+            className="rounded border border-border bg-background px-1 py-0.5"
+            value={state.modelId}
+            disabled={state.modelLoading}
+            onChange={(e) => void controller.setModel(e.target.value)}
+          >
+            {DEMO_MODELS.map((model) => (
+              <option key={model.id} value={model.id}>
+                {model.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        {state.modelError ? (
+          <p role="alert" className="text-xs text-red-500">
+            {state.modelError}
+          </p>
+        ) : null}
+        <label className="grid grid-cols-[110px_1fr] items-center gap-2 text-xs">
+          <span>Resolution</span>
+          <select
+            className="rounded border border-border bg-background px-1 py-0.5"
+            value={`${state.resolution.width}x${state.resolution.height}`}
+            onChange={(e) => {
+              const [width, height] = e.target.value.split('x').map(Number);
+              void controller.setResolution({ width, height });
+            }}
+          >
+            {RESOLUTION_OPTIONS.map((r) => (
+              <option key={`${r.width}x${r.height}`} value={`${r.width}x${r.height}`}>
+                {r.width} x {r.height}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex items-center gap-2 text-xs">
+          <input
+            type="checkbox"
+            checked={state.autoRotate}
+            onChange={(e) => controller.setAutoRotate(e.target.checked)}
+          />
+          Slow auto-rotate
+        </label>
+        <button
+          type="button"
+          className="self-start rounded border border-border px-2 py-1 text-xs hover:bg-muted"
+          onClick={() => controller.resetCamera()}
+        >
+          Reset camera
+        </button>
+      </Section>
+
       <Section title="Weights">
         <p className="text-xs">
           {state.weights ? (
@@ -415,6 +475,7 @@ function Controls({ state, controller }: { state: DemoState; controller: DemoCon
       </Section>
 
       <Section title="Backend">
+        <p className="text-xs text-muted-foreground">Két megvalósítás, ugyanaz a neurális hálózat.</p>
         <div className="flex flex-col gap-1">
           {state.backends.map((option) => (
             <label
@@ -440,9 +501,13 @@ function Controls({ state, controller }: { state: DemoState; controller: DemoCon
             </label>
           ))}
         </div>
+        <details className="text-xs text-muted-foreground">
+          <summary className="cursor-pointer font-medium text-foreground">Mi a különbség a két backend között?</summary>
+          <BackendHelp className="mt-3 space-y-3 [&_dd]:mt-1 [&_dl]:space-y-3 [&_dt]:font-semibold [&_dt]:text-foreground" />
+        </details>
         {state.backendId === 'reference-wgsl' ? (
           <div className="flex flex-col gap-1 text-xs">
-            <span className="text-muted-foreground">Frame around the reference network</span>
+            <span className="text-muted-foreground">Kép előkészítése és összeállítása</span>
             <Segmented<FrameMode>
               value={state.frameMode}
               onChange={(mode) => void controller.setFrameMode(mode)}
@@ -451,6 +516,10 @@ function Controls({ state, controller }: { state: DemoState; controller: DemoCon
                 { value: 'reference', label: 'Upstream frame.wgsl', title: 'the reference demo frame, recorded as is' },
               ]}
             />
+            <p className="text-muted-foreground">
+              Ez a kapcsoló a kép előkészítését és az eredmény összeillesztését választja ki. A hálózat backendje
+              továbbra is Reference WGSL.
+            </p>
           </div>
         ) : null}
         <p className="text-xs text-muted-foreground">
@@ -532,55 +601,6 @@ function Controls({ state, controller }: { state: DemoState; controller: DemoCon
           onClick={() => controller.resetHistory()}
         >
           Reset history
-        </button>
-      </Section>
-
-      <Section title="Scene">
-        <label className="grid grid-cols-[110px_1fr] items-center gap-2 text-xs">
-          <span>Head</span>
-          <select
-            className="rounded border border-border bg-background px-1 py-0.5"
-            value={state.modelId}
-            onChange={(e) => void controller.setModel(e.target.value)}
-          >
-            {HEAD_MODELS.map((model) => (
-              <option key={model.id} value={model.id}>
-                {model.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="grid grid-cols-[110px_1fr] items-center gap-2 text-xs">
-          <span>Resolution</span>
-          <select
-            className="rounded border border-border bg-background px-1 py-0.5"
-            value={`${state.resolution.width}x${state.resolution.height}`}
-            onChange={(e) => {
-              const [width, height] = e.target.value.split('x').map(Number);
-              void controller.setResolution({ width, height });
-            }}
-          >
-            {RESOLUTION_OPTIONS.map((r) => (
-              <option key={`${r.width}x${r.height}`} value={`${r.width}x${r.height}`}>
-                {r.width} x {r.height}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex items-center gap-2 text-xs">
-          <input
-            type="checkbox"
-            checked={state.autoRotate}
-            onChange={(e) => controller.setAutoRotate(e.target.checked)}
-          />
-          Slow auto-rotate
-        </label>
-        <button
-          type="button"
-          className="self-start rounded border border-border px-2 py-1 text-xs hover:bg-muted"
-          onClick={() => controller.resetCamera()}
-        >
-          Reset camera
         </button>
       </Section>
 

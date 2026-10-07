@@ -1,8 +1,10 @@
 # three-dlss-nr
 
-[![ci](https://github.com/bhouston/three-dlss-nr/actions/workflows/ci.yml/badge.svg)](https://github.com/bhouston/three-dlss-nr/actions/workflows/ci.yml)
-[![Unit coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbhouston%2Fthree-dlss-nr%2Fcoverage-badge%2Fcoverage.json)](https://github.com/bhouston/three-dlss-nr/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/bhouston/three-dlss-nr/blob/main/LICENSE)
+This is the Hungarian personal fork maintained at [mp3pintyo/three-dlss-nr](https://github.com/mp3pintyo/three-dlss-nr), based on [Ben Houston's original project](https://github.com/bhouston/three-dlss-nr). All development, pull requests and releases target this fork exclusively. New development ships as a GitHub Release with Hungarian and English notes in [CHANGELOG.md](CHANGELOG.md); see [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow. Windows users can start with [INDITAS.md](INDITAS.md).
+
+[![ci](https://github.com/mp3pintyo/three-dlss-nr/actions/workflows/ci.yml/badge.svg)](https://github.com/mp3pintyo/three-dlss-nr/actions/workflows/ci.yml)
+[![Unit coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fmp3pintyo%2Fthree-dlss-nr%2Fcoverage-badge%2Fcoverage.json)](https://github.com/mp3pintyo/three-dlss-nr/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mp3pintyo/three-dlss-nr/blob/main/LICENSE)
 [![Live demo](https://img.shields.io/badge/demo-three--dlss--nr.ben3d.ca-blue)](https://three-dlss-nr.ben3d.ca)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/5J5Ur3F6Z2)
 
@@ -31,6 +33,12 @@ With a real model directory the right half is the re-rendered head. Head: Lee Pe
 Try it live at **[three-dlss-nr.ben3d.ca](https://three-dlss-nr.ben3d.ca)**.
 
 ## What the network does
+
+The website now opens with a [Hungarian interactive explainer](http://localhost:3300/) for presentations:
+DLSS 5 in plain language, live Three.js objects, scroll parallax, accessible draggable comparisons using real
+local demo captures, and a screenshot gallery. The original network demo is at `/demo`; `/local-demo.html`
+retains the configured local-model workflow. On this Windows setup, double-click `start-presentation.cmd`.
+See [the explainer guide](docs/bemutato.md) and [local startup instructions](INDITAS.md).
 
 From [upstream's README](https://github.com/maanHimself/OpenDLSS-NR/tree/9d08f41#the-network): it is a generative
 neural rendering network (NVIDIA's term). It **re-renders the frame the engine already drew**, generating detail from
@@ -107,6 +115,11 @@ renderer.setAnimationLoop(async () => {
 
 Load the model once and share it: resizes and network rebuilds reuse it instead of re-reading 141 MiB. Call
 `pass.resetHistory()` on a camera cut. The internal size is capped at 1280x720.
+
+The reference backend also keeps shader modules and layouts on the same GPU device, so returning to a previously
+built resolution reuses its compiled pipelines. A new size can require new specialized pipelines; the progress
+counter counts graph dispatches being prepared, including cache hits. Reloading the page creates a new device and
+rebuilds the network. The application cache lasts for that device's lifetime, rather than across page reloads.
 
 To run the network on your own inputs instead of a scene, use a backend directly:
 
@@ -240,7 +253,7 @@ pnpm build && node scripts/bench-backends.mjs --sizes 512x512,1280x720
 ## Development
 
 ```sh
-git clone --recurse-submodules https://github.com/bhouston/three-dlss-nr.git
+git clone --recurse-submodules https://github.com/mp3pintyo/three-dlss-nr.git
 cd three-dlss-nr
 corepack enable
 pnpm install

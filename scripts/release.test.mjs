@@ -5,6 +5,52 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { prepare, packages } from './prepare-release.mjs';
 import { analyzeCommits } from '@semantic-release/commit-analyzer';
+import { generateNotes as bilingualNotes } from './bilingual-release-notes.mjs';
+import { spawnSync } from 'node:child_process';
+import releaseConfig from '../release.config.js';
+
+test('fork release notes reject missing versions and missing translations', () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'dlss-nr-notes-'));
+  const context = { cwd, nextRelease: { version: '1.1.0' } };
+  try {
+    writeFileSync(join(cwd, 'CHANGELOG.md'), '## 1.0.0 — 2026-10-07\n### Magyar\n- Régi\n### English\n- Old');
+    assert.throws(() => bilingualNotes({}, context), /1\.1\.0/);
+    writeFileSync(join(cwd, 'CHANGELOG.md'), '## 1.1.0 — 2026-10-08\n### Magyar\n- Új funkció\n### English\n');
+    assert.throws(() => bilingualNotes({}, context), /missing English/);
+    writeFileSync(
+      join(cwd, 'CHANGELOG.md'),
+      '## 1.1.0 — 2026-10-08\r\n### Magyar\r\n- Új funkció\r\n### English\r\n- New feature\r\n\r\n## 1.0.0 — 2026-10-07\r\n- Old',
+    );
+    const notes = bilingualNotes({}, context);
+    assert.match(notes, /Új funkció/);
+    assert.match(notes, /New feature/);
+    assert.doesNotMatch(notes, /Old/);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('push guard allows the fork and rejects upstream and lookalike destinations', () => {
+  for (const [url, status] of [
+    ['https://github.com/mp3pintyo/three-dlss-nr.git', 0],
+    ['git@github.com:mp3pintyo/three-dlss-nr.git', 0],
+    ['ssh://git@github.com/mp3pintyo/three-dlss-nr.git', 0],
+    ['https://github.com/bhouston/three-dlss-nr.git', 1],
+    ['https://github.com/mp3pintyo/three-dlss-nr-other.git', 1],
+    ['', 1],
+  ]) {
+    assert.equal(spawnSync(process.execPath, ['scripts/check-push-target.mjs', url]).status, status, url);
+  }
+});
+
+test('release destination is pinned to the fork and npm publishing is disabled', () => {
+  assert.equal(releaseConfig.repositoryUrl, 'https://github.com/mp3pintyo/three-dlss-nr.git');
+  const pnpmPlugin = releaseConfig.plugins.find((entry) => entry[0] === '@anolilab/semantic-release-pnpm');
+  assert.equal(pnpmPlugin[1].npmPublish, false);
+  const notes = bilingualNotes({}, { cwd: process.cwd(), nextRelease: { version: '1.0.0' } });
+  assert.match(notes, /### Magyar/);
+  assert.match(notes, /### English/);
+});
 
 test('prepares release documents without touching the version', () => {
   const cwd = mkdtempSync(join(tmpdir(), 'dlss-nr-release-'));
@@ -128,7 +174,7 @@ test('renders release notes with the installed Conventional Commits preset', asy
     { preset: 'conventionalcommits' },
     {
       cwd: process.cwd(),
-      options: { repositoryUrl: 'https://github.com/bhouston/three-dlss-nr.git' },
+      options: { repositoryUrl: 'https://github.com/mp3pintyo/three-dlss-nr.git' },
       lastRelease: { gitTag: 'v0.1.0', version: '0.1.0' },
       nextRelease: { gitTag: 'v0.2.0', version: '0.2.0' },
       commits: [
